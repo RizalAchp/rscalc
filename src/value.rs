@@ -92,7 +92,7 @@ impl Display for NumberType {
         match self.ty {
             Ty::BOOL => write!(f, "{}: {}", self.integral() != 0, self.ty),
             t if matches!(t, Ty::F64 | Ty::F32) => write!(f, "{:.2}: {}", self.floating(), self.ty),
-            _ => write!(f, "{}: {}", self.floating(), self.ty),
+            _ => write!(f, "{}: {}", self.integral(), self.ty),
         }
     }
 }

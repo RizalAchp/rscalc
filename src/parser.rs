@@ -48,7 +48,7 @@ pub fn parse<T: AsRef<str>>(expr: T) -> Result<Expresions> {
                     tokens.push(Token::Num(NumberType::new(Ty::F64, val)));
                 }
                 let val = num_str.parse::<i64>().unwrap_or_default();
-                tokens.push(Token::Num(NumberType::new(Ty::F64, val)));
+                tokens.push(Token::Num(NumberType::new(Ty::I64, val)));
             }
             '(' => {
                 tokens.push(Token::Bracket(c));
@@ -66,7 +66,7 @@ pub fn parse<T: AsRef<str>>(expr: T) -> Result<Expresions> {
             }
             '}' => {
                 tokens.push(Token::Bracket(c));
-                if !matches!(parens.pop(), Some('(')) {
+                if !matches!(parens.pop(), Some('{')) {
                     return Err(Error::MismatchParams);
                 }
             }
@@ -76,7 +76,7 @@ pub fn parse<T: AsRef<str>>(expr: T) -> Result<Expresions> {
             }
             ']' => {
                 tokens.push(Token::Bracket(c));
-                if !matches!(parens.pop(), Some('(')) {
+                if !matches!(parens.pop(), Some('[')) {
                     return Err(Error::MismatchParams);
                 }
             }

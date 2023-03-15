@@ -132,6 +132,12 @@ impl Expresions {
                     }
                     stack.push(token);
                 }
+                Token::Cmp(_) => {
+                    while !stack.is_empty() && stack[stack.len() - 1] >= token {
+                        queue.push(stack.pop().unwrap());
+                    }
+                    stack.push(token)
+                }
                 Token::Bracket('(') => stack.push(token),
                 Token::Bracket(')') => close_expr_bracket!('('..')', stack, queue),
                 Token::Bracket('{') => stack.push(token),
