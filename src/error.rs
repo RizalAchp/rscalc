@@ -1,36 +1,32 @@
-use std::{error::Error as StdError, fmt::Display, result::Result as StdResult};
+use std::result::Result as StdResult;
 
-#[derive(Debug)]
-pub enum Error {
+use thiserror::Error;
+
+use crate::lexer::error::LexError;
+
+#[derive(Debug, Error)]
+pub enum Error<'a> {
+    #[error("{0}")]
     Any(String),
+    #[error("{0} - ParsingError")]
     ParsingError(String),
-    BadToken(char),
-    MismatchParams,
+    #[error("{0} - LexingError")]
+    LexingError(LexError<'a>),
+
+    #[error("IoError - {0}")]
+    IoError(#[from] std::io::Error),
 }
 
-impl StdError for Error {
-    fn source(&self) -> Option<&(dyn StdError + 'static)> {
-        None
+impl<'err> Error<'err> {
+    pub fn any(s: impl ToString) -> Self {
+        Self::Any(s.to_string())
     }
-
-    fn description(&self) -> &str {
-        "description() is deprecated; use Display"
+    pub fn parsing_error(s: impl ToString) -> Self {
+        Self::ParsingError(s.to_string())
     }
-
-    fn cause(&self) -> Option<&dyn StdError> {
-        self.source()
-    }
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Any(err) => write!(f, "ERROR[PARSING]: {err}"),
-            Self::ParsingError(err) => write!(f, "ERROR[PARSING]: {err}"),
-            Self::BadToken(tok) => write!(f, "ERROR[BAD TOKEN] = `{tok}`"),
-            Self::MismatchParams => write!(f, "ERROR[MISMATCH PARAMS]"),
-        }
+    pub fn lexing_error(s: impl Into<LexError<'err>>) -> Self {
+        Self::LexingError(s.into())
     }
 }
 
-pub type Result<T> = StdResult<T, Error>;
+pub type Result<'err, T> = StdResult<T, Error<'err>>;
